@@ -1,0 +1,15 @@
+[package]
+name = "CodingGame"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version="4.5.7", features=["derive"] }
+serde = {version="1.0.203", features = ["derive"]}
+serde_json = "1.0.117"
+tokio = { version = "1.38.0", features = ["full"]}
+thiserror = "1.0.61"
+reqwest = { version = "0.12.5", features = ["json"] }
+tera ="1.20.0"
+mdka = "1.2.7"
+rust-embed = { version = "8.4.0", features = ["debug-embed"] }
