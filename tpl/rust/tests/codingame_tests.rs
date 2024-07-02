@@ -1,7 +1,19 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader, Cursor, Read};
 use std::path::Path;
-use {{safe_name}}::main;
+
+#[cfg(test)]
+mod codingame_tests {
+    use super::*;
+    {% for test in tests %}
+    #[test]
+    fn {{ test.safe_label }}() {
+        //{{ test.label }}
+        test_from_folder("{{ test.safe_label }}");
+    }
+    {% endfor %}
+}
+
 fn test_from_folder(folder : &str) {
     let test_data_path = format!("tests/data/{}", folder);
     let input_path = format!("{test_data_path}/input.txt");
@@ -22,7 +34,7 @@ fn test_from_folder(folder : &str) {
     let mut output = Vec::new();
 
     // Call the function with the test input and output
-    main(&mut input, &mut output);
+    assert!({{ safe_name }}::main(&mut input, &mut output).is_ok(), "Library returned an error");
 
     // Convert the output to a String
     let output_string = String::from_utf8(output).expect("Failed to convert output to String");
@@ -41,11 +53,3 @@ fn test_from_folder(folder : &str) {
     // Ensure there are no extra lines in output.txt
     assert!(lines_from_file.next().is_none());
 }
-
-{% for test in tests %}
-#[test]
-//{{ test.label }}
-fn {{ test.safe_label }}() {
-    test_from_folder("{{ test.safe_label }}");
-}
-{% endfor %}

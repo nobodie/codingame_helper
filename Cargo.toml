@@ -13,3 +13,5 @@ reqwest = { version = "0.12.5", features = ["json"] }
 tera ="1.20.0"
 mdka = "1.2.7"
 rust-embed = { version = "8.4.0", features = ["debug-embed"] }
+clipboard = "0.5.0"
+toml = "0.8.14"

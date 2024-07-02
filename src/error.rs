@@ -1,3 +1,4 @@
+use serde::ser::StdError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -16,4 +17,10 @@ pub enum CodingGameError {
     AssetError(String),
     #[error("Utf8 conversion error")]
     Utf8Error(#[from] std::str::Utf8Error),
+    #[error("Folder doesn't seem to be a CodingGame puzzle project : {0}")]
+    NotACodingGamePuzzle(String),
+    #[error("Toml deserialization error : {0}")]
+    TomlDeserializationError(#[from] toml::de::Error),
+    #[error("General error : {0}")]
+    GeneralError(#[from] Box<dyn StdError>),
 }

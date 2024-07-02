@@ -79,7 +79,8 @@ pub struct Question {
     title : String,
     statement: String,
     test_cases : Vec<TestCase>,
-    _available_languages : Vec<AvailableLanguage>
+    _available_languages : Vec<AvailableLanguage>,
+    stub_generator : String
 }
 
 
@@ -110,6 +111,7 @@ pub struct GameData {
     pub title : String,
     pub description : String,
     pub tests : Vec<GameDataTest>,
+    pub stub_generator: String
 }
 
 fn safe_name(name : &str) -> String {
@@ -120,15 +122,15 @@ fn safe_name(name : &str) -> String {
 }
 
 impl GameData {
-    async fn new(question : &Question ) -> Result<Self, CodingGameError> {
+    async fn new(question : Question ) -> Result<Self, CodingGameError> {
         let mut tests = Vec::new();
-        for test in question.test_cases.iter() {
+        for (test_id, test) in question.test_cases.iter().enumerate() {
             let input = get_servlet_file(test.input_binary_id).await?;
             let output = get_servlet_file(test.output_binary_id).await?;
 
             tests.push(GameDataTest{
                 label: test.label.clone(),
-                safe_label: safe_name(&test.label),
+                safe_label: format!("test_{:02}", test_id+1),
                 input_text: input,
                 output_text: output
             })
@@ -136,20 +138,13 @@ impl GameData {
 
         let description = mdka::from_html(&question.statement);
 
-        Ok(Self { safe_name: "".to_string(), title: question.title.clone(), description, tests })
+        Ok(Self { safe_name: "".to_string(), title: question.title, description, tests, stub_generator: question.stub_generator })
     }
 
     pub fn set_safe_name(&mut self, name : &str) {
         self.safe_name = safe_name(name);
     }
 
-}
-
-
-impl From<&Question> for GameData {
-    fn from(question: &Question) -> Self {
-        Self { safe_name: "".to_string(), title: question.title.clone(), description: question.statement.clone(), tests: vec![] }
-    }
 }
 
 pub async fn create_game_session(name : String) -> Result<String, CodingGameError> {
@@ -184,7 +179,7 @@ pub async fn get_session_data(session_id: String) -> Result<GameData, CodingGame
 
     let question = response.json::<TestSessionRequestResponse>().await?.current_question.question;
 
-    let game_data = GameData::new(&question).await?;
+    let game_data = GameData::new(question).await?;
 
     Ok(game_data)
 }
